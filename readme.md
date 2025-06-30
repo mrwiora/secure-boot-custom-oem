@@ -26,6 +26,7 @@ So I reenabled the factory platform keys and performed an export of the original
 `efi-readvar -v dbx -o 'dbx'`
 
 The links behind these exports are of base64 encoded content. Original export files are binary.
+They were extracted from a UEFI Firmware Update dated 08/2024.
 
 and with a bit AI stuff I could find out, that the first certificate in the db chain, was the "HP UEFI Secure Boot 2013 DB Key" so I isolated this one:
 ```
@@ -65,10 +66,10 @@ jXeNk82TBptW2rKyTsmWiG2XBHKI4/eoHqA3r9xuBa7oyFAoWkGj6krtfgyt/G6A
 
 The challenge is now, that as soon as you are importing the Platform Key, your Setup is completed, so you have to take care about a strict procedure how to import the certificates:
 - create a fresh set of custom secure boot certificates: sbctl create-keys
-- place the HP certificate under /var/lib/sbctl/keys/custom/db/hp.pem
+- place the HP certificate under `/var/lib/sbctl/keys/custom/db/hp.pem`
 - enroll only db keys, together with the custom keys defined: `sbctl enroll-keys --partial db --yes-this-might-brick-my-machine -c`
 - enroll the KEK key: `sbctl enroll-keys --partial KEK --yes-this-might-brick-my-machine`
-- optional: enroll the dbx: efi-updatevar -e -k /var/lib/sbctl/keys/KEK/KEK.key -f /root/dbx dbx` (notes; no signatures by else then 77fa9abd-0359-4d32-bd60-28f4e78f784b and the CRL from HP has no revocations as of today (June 2025))
+- optional: enroll the dbx: `efi-updatevar -e -k /var/lib/sbctl/keys/KEK/KEK.key -f /root/dbx dbx` (notes; no signatures by else then 77fa9abd-0359-4d32-bd60-28f4e78f784b and the CRL from HP has no revocations as of today (June 2025))
 - enroll the PK key: `sbctl enroll-keys --partial PK --yes-this-might-brick-my-machine`
 
 in case you get:
